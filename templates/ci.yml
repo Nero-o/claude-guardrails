@@ -42,7 +42,7 @@ jobs:
       # Fixe a tag; assim uma regra nova nunca quebra o pipeline sem revisao.
       - name: Obter guardrails
         run: |
-          git clone --depth 1 --branch v1.0.0 \
+          git clone --depth 1 --branch v1.0.1 \
             https://github.com/Nero-o/claude-guardrails.git "$RUNNER_TEMP/guardrails"
           echo "$RUNNER_TEMP/guardrails/bin" >> "$GITHUB_PATH"
 
