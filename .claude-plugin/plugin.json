@@ -1,7 +1,7 @@
 {
   "name": "guardrails",
   "displayName": "Guardrails",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Trava comando destrutivo, credencial hardcoded e codigo entregue sem teste. Detecta o stack sozinho (Jest, Vitest, Playwright, Cypress, pytest) e roda o gate de qualidade.",
   "author": {
     "name": "Omar Mahmoud",

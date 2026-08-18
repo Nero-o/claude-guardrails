@@ -3,6 +3,13 @@
 Formato: [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versionamento semântico — regra nova que **bloqueia** sempre entra como minor, no mínimo.
 
+## [1.0.2] — 2026-08-18
+
+### Corrigido
+- Colisao de nomes: `commands/guardrails.md` e `skills/guardrails/` registravam duas entradas
+  chamadas `guardrails`, deixando `/guardrails:guardrails` ambiguo. O comando virou dois,
+  com nome proprio: `/guardrails:check` e `/guardrails:status`.
+
 ## [1.0.1] — 2026-08-18
 
 ### Corrigido
