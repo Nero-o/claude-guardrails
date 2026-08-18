@@ -26,6 +26,52 @@ No nível de rigor, escolha `permissivo`, `padrao` ou `estrito`:
 claude plugin install guardrails@claude-guardrails --config strictness=estrito
 ```
 
+### Fora do terminal
+
+O `/plugin` é um painel do CLI. Nas outras superfícies do Claude Code:
+
+| Superfície | Como instalar |
+|---|---|
+| **App desktop** (sessão local ou SSH) | Botão **+** ao lado do campo de prompt → **Plugins** → **Add plugin**. Desktop e CLI leem os mesmos arquivos de configuração, então o que você instalar num aparece no outro — inclusive os hooks. |
+| **Extensão VS Code / JetBrains** | Mesma instalação do CLI: é o mesmo Claude Code local lendo o mesmo `~/.claude/settings.json`. |
+| **Sessões na nuvem** (claude.ai/code) | O navegador de plugins não existe lá, e o que você instala no desktop **não** vale na nuvem. Declare no `.claude/settings.json` do repositório (ver abaixo) — a sessão instala sozinha ao iniciar. |
+| **Sessões WSL** | **Plugins não são suportados.** Use a instalação sem plugin: `./install.sh` (ver *Instalação sem plugin*). |
+| **claude.ai** (chat comum) | Não se aplica: plugin é recurso do Claude Code, não do chat. |
+
+### Para o time inteiro (e para sessões na nuvem)
+
+Comprometa isto no `.claude/settings.json` do **seu** repositório. Quem clonar recebe o
+guardrail junto, e sessões na nuvem instalam sozinhas ao iniciar:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "claude-guardrails": {
+      "source": { "source": "github", "repo": "Nero-o/claude-guardrails" }
+    }
+  },
+  "enabledPlugins": {
+    "guardrails@claude-guardrails": true
+  }
+}
+```
+
+Numa sessão local, declarar não basta para plugins de fonte externa: o Claude Code mostra o
+plugin como não instalado e imprime o `claude plugin install` a rodar. Na nuvem, a instalação
+acontece no início da sessão.
+
+### Instalação sem plugin
+
+Para WSL, CI, servidor ou cliente que não usa o sistema de plugins:
+
+```bash
+git clone --branch v1.0.1 https://github.com/Nero-o/claude-guardrails.git
+./claude-guardrails/install.sh --target /caminho/do/projeto
+```
+
+Copia o kit para `.claude/guardrails-plugin/`, registra os hooks no `settings.json` do projeto
+e cria a pasta de customização. Mesmas regras, mesma CLI.
+
 Requisito único: `python3`. Sem `pip install`, sem dependência externa, sem chamada de rede.
 
 Depois de instalar, rode `guardrails init` uma vez no projeto: cria `.claude/guardrails/`,
