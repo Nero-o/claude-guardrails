@@ -1,0 +1,7 @@
+.state/
+config.local.json
+__pycache__/
+*.pyc
+
+# playbook comercial: local, nunca publicado
+DELIVERY.md

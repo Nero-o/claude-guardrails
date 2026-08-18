@@ -1,0 +1,65 @@
+# Copie para .github/workflows/guardrails.yml
+# Roda o MESMO gate que o hook local roda — o CI nunca deve descobrir algo
+# que o desenvolvedor não poderia ter descoberto antes de dar push.
+name: guardrails
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: guardrails-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # necessário para o scan comparar com a base
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Ajuste conforme o gerenciador do projeto (npm ci / pnpm i / poetry install)
+      - name: Instalar dependências
+        run: |
+          if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm install --frozen-lockfile; \
+          elif [ -f yarn.lock ]; then yarn install --frozen-lockfile; \
+          elif [ -f package-lock.json ]; then npm ci; fi
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # O CI nao tem o plugin instalado: busca a MESMA versao usada pelo time.
+      # Fixe a tag; assim uma regra nova nunca quebra o pipeline sem revisao.
+      - name: Obter guardrails
+        run: |
+          git clone --depth 1 --branch v1.0.0 \
+            https://github.com/Nero-o/claude-guardrails.git "$RUNNER_TEMP/guardrails"
+          echo "$RUNNER_TEMP/guardrails/bin" >> "$GITHUB_PATH"
+
+      - name: Segredos
+        run: guardrails scan --all
+
+      - name: Gate (lint + typecheck + testes + e2e)
+        run: guardrails check --full
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: relatorio-testes
+          path: |
+            playwright-report/
+            cypress/screenshots/
+            cypress/videos/
+            coverage/
+          retention-days: 7
+          if-no-files-found: ignore

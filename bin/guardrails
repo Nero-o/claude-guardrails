@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# CLI do guardrails (entra no PATH automaticamente quando instalado como plugin).
+set -u
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="${CLAUDE_PLUGIN_ROOT:-$(dirname "$DIR")}"
+PY="$(command -v python3 || command -v python || true)"
+if [ -z "${PY}" ]; then echo "guardrails: python3 nao encontrado" >&2; exit 127; fi
+exec "${PY}" "${ROOT}/lib/cli.py" "$@"

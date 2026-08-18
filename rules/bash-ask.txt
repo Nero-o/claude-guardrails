@@ -1,0 +1,39 @@
+# Comandos legitimos mas com potencial de perda de trabalho ou exposicao.
+# Nao bloqueiam: escalam para confirmacao do usuario.
+
+# --- Perda de trabalho nao commitado ---
+(?i)\bgit\s+reset\s+--hard\b ::: Descarta alteracoes nao commitadas de forma irrecuperavel. Alternativa: git stash.
+(?i)\bgit\s+clean\s+-[a-z]*f ::: Apaga arquivos nao rastreados permanentemente.
+(?i)\bgit\s+checkout\s+(--\s+)?\.(\s|$) ::: Descarta todas as alteracoes do working tree.
+(?i)\bgit\s+restore\s+(--\s+)?\.(\s|$) ::: Descarta todas as alteracoes do working tree.
+(?i)\bgit\s+stash\s+(drop|clear)\b ::: Remove stash salvo permanentemente.
+(?i)\bgit\s+(rebase|filter-branch|filter-repo)\b ::: Reescrita de historico.
+(?i)\bgit\s+push\b[^|;]*(--force|(\s|^)-f)(\s|$) ::: Force push sobrescreve o historico remoto.
+(?i)\bgit\s+branch\s+-D\b ::: Exclusao forcada de branch com trabalho nao mesclado.
+
+# --- Exposicao de segredos no contexto/transcript ---
+(?i)\b(cat|less|more|head|tail|bat|nl|xxd|strings)\b[^|;]*\.env(?!\.(example|sample|template|dist)) ::: Ler .env despeja segredos reais no contexto e no transcript. Leia .env.example ou consulte apenas os NOMES das variaveis.
+(?i)\b(cat|less|more|head|tail)\b[^|;]*(\.pem|\.key|id_rsa|id_ed25519|credentials\.json|\.p12|\.pfx)\b ::: Leitura de arquivo de chave privada/credencial.
+(?i)\bprintenv\b|\benv\s*(\||$) ::: Despeja todas as variaveis de ambiente, incluindo segredos.
+(?i)\becho\s+\$\{?(\w*(SECRET|TOKEN|PASSWORD|SENHA|API_?KEY|PRIVATE)\w*) ::: Imprime valor de variavel sensivel.
+
+# --- Exfiltracao / rede ---
+(?i)\bcurl\b[^|;]*(-d|--data(-binary|-raw)?|-F|--form)\s+.?@ ::: Upload de arquivo local para host externo.
+(?i)\b(nc|ncat|netcat|socat)\b\s+ ::: Conexao de rede bruta.
+(?i)\bssh\b\s+[^|;]*@ ::: Conexao a host remoto.
+
+# --- Deploy / ambiente compartilhado ---
+(?i)\b(vercel|netlify)\b[^|;]*--prod ::: Deploy em producao.
+(?i)\b(railway\s+(up|down|redeploy)|flyctl?\s+deploy|heroku\s+.*\s-a\s|gcloud\s+.*deploy) ::: Deploy em ambiente remoto.
+(?i)\bdocker\s+push\b ::: Push de imagem para registry.
+(?i)\bdocker\s+(system\s+prune|volume\s+rm) ::: Remove volumes/dados de containers.
+(?i)\b(mysql|psql|mongosh?|redis-cli)\b[^|;]*(-h|--host)\s*[^l\s] ::: Conexao a banco que nao e localhost. Confirme que nao e producao.
+(?i)\b(alembic\s+downgrade|prisma\s+migrate\s+reset|(db|sequelize)[:\s]+(drop|reset)|knex\s+migrate:rollback) ::: Rollback/reset de schema perde dados.
+
+# --- Sistema / dependencias ---
+(?i)^\s*sudo\b|\s\|\s*sudo\b ::: Execucao com privilegio de root.
+(?i)\b(npm|pnpm|yarn|bun)\s+(i|install|add)\b[^|;]*(-g|--global) ::: Instalacao global afeta outros projetos.
+(?i)\bpip\s+install\b[^|;]*(--break-system-packages|--user\s+.*sudo) ::: Instalacao que altera o Python do sistema.
+(?i)\b(killall|pkill\s+-9|kill\s+-9\s+1)\b ::: Encerramento forcado de processos em massa.
+(?i)\bfind\b[^|;]*(-delete|-exec\s+rm) ::: Exclusao em massa via find.
+(?i)\b(npm|pnpm|yarn)\s+(i|install|add|update|up)\b(?![^|;]*--frozen-lockfile) ::: Alterar dependencias muda o lockfile e a superficie de supply chain. Confirme a necessidade.

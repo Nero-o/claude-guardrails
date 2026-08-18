@@ -1,0 +1,43 @@
+# Formato:  <regex python> ::: <motivo mostrado ao agente>
+# Linhas com # sao comentarios. Use (?i) no inicio do regex para case-insensitive.
+# ESTE ARQUIVO BLOQUEIA. Coisas legitimas-porem-arriscadas vao em bash-ask.txt.
+
+# --- Destruicao de filesystem ---
+(?i)\brm\s+(-{1,2}[\w-]+\s+)*(/|~|\$HOME|/\*)(\s|$) ::: rm apontando para raiz/home. Delete caminhos especificos e relativos ao projeto.
+(?i)\brm\s+-[a-z]*[rf][a-z]*\s+\*(\s|$) ::: rm -rf com glob total apaga o diretorio inteiro. Liste os arquivos explicitamente.
+(?i)\brm\s+-[a-z]*[rf][a-z]*\s+\.(\s|$|/) ::: rm -rf . apaga o diretorio atual inteiro.
+(?i)\b(mkfs(\.\w+)?|fdisk|parted)\b ::: Operacao de particionamento de disco.
+(?i)\bdd\b[^|;]*\bof=/dev/ ::: dd escrevendo direto em dispositivo de bloco.
+(?i):\(\)\s*\{.*\|.*&.*\};\s*: ::: Fork bomb.
+(?i)>\s*/(etc|usr|bin|sbin|boot|sys|proc)/ ::: Escrita em diretorio de sistema.
+(?i)\bchmod\s+(-[a-z]+\s+)*777\b ::: chmod 777 da permissao de escrita para qualquer usuario. Use 644 (arquivo) ou 755 (executavel/dir).
+(?i)\bchown\s+-R\s+.*\s+/(\s|$) ::: chown recursivo na raiz.
+
+# --- Execucao remota de codigo ---
+(?i)\b(curl|wget)\b[^|]*\|\s*(sudo\s+)?(ba|z|k|fi)?sh\b ::: Baixar e executar script direto do pipe. Baixe, leia o conteudo e so entao execute.
+(?i)\b(curl|wget)\b[^|]*\|\s*(sudo\s+)?(python3?|node|perl|ruby)\b ::: Baixar e interpretar codigo remoto sem inspecao.
+(?i)\bnpx\s+(-y\s+|--yes\s+)?https?:// ::: npx executando pacote direto de URL.
+
+# --- Bypass dos proprios guardrails ---
+(?i)\bgit\s+(commit|merge|push)\b[^|;]*(--no-verify|(\s|^)-n(\s|$)) ::: --no-verify pula os git hooks de validacao. Corrija o que o hook aponta em vez de burlar.
+(?i)\bHUSKY(_SKIP_HOOKS)?=0\b ::: Desativa hooks de pre-commit.
+(?i)\bgit\s+config\s+.*core\.hooksPath ::: Redireciona/desliga os git hooks do repositorio.
+(?i)--no-gpg-sign|--allow-empty-message ::: Burla politica de commit.
+(?i)\bSKIP_PREFLIGHT_CHECK|--skip-checks|--force-with-lease=$ ::: Burla verificacao de build/deploy.
+
+# --- Publicacao / infraestrutura irreversivel ---
+(?i)\b(npm|pnpm|yarn|bun)\s+publish\b ::: Publicar pacote e irreversivel e publico. Peca confirmacao explicita ao usuario.
+(?i)\bterraform\s+destroy\b ::: Destroi infraestrutura provisionada.
+(?i)\bkubectl\s+delete\s+(namespace|ns|deployment|statefulset|pvc)\b ::: Remocao de recurso de cluster.
+(?i)\baws\s+s3\s+(rb|rm)\b[^|;]*(--recursive|--force) ::: Remocao recursiva de bucket S3.
+(?i)\bgh\s+repo\s+delete\b ::: Exclusao de repositorio.
+(?i)\bgit\s+push\b[^|;]*\s(--delete|:refs?/) ::: Exclusao de branch/tag remota.
+
+# --- Banco de dados destrutivo ---
+(?i)\bDROP\s+(DATABASE|SCHEMA|TABLE)\b ::: DDL destrutivo. Se for migration, escreva no arquivo de migration e rode pela ferramenta (alembic/prisma/knex).
+(?i)\bTRUNCATE\s+(TABLE\s+)?\w+ ::: TRUNCATE apaga todos os registros da tabela.
+(?i)\bDELETE\s+FROM\s+[\w."`]+\s*(;|$) ::: DELETE sem WHERE apaga a tabela inteira.
+(?i)\bUPDATE\s+[\w."`]+\s+SET\b(?![^;]*\bWHERE\b) ::: UPDATE sem WHERE altera todos os registros.
+
+# --- Marcadores de teste que desligam a suite ---
+(?i)\b(it|test|describe|context)\.only\( ::: .only() faz o CI rodar so esse teste e passar verde escondendo os outros. Remova antes de gravar.

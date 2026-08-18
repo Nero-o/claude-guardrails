@@ -1,0 +1,28 @@
+{
+  "name": "claude-guardrails",
+  "owner": {
+    "name": "Omar Mahmoud",
+    "url": "https://github.com/Nero-o"
+  },
+  "metadata": {
+    "description": "Guardrails de seguranca e qualidade para projetos de clientes",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "guardrails",
+      "source": "./",
+      "description": "Trava comando destrutivo, credencial hardcoded e codigo entregue sem teste.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Omar Mahmoud"
+      },
+      "keywords": [
+        "seguranca",
+        "testes",
+        "qualidade"
+      ],
+      "defaultEnabled": true
+    }
+  ]
+}

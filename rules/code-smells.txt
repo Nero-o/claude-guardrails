@@ -1,0 +1,44 @@
+# Padroes inseguros ou frageis. Por padrao AVISAM (nao bloqueiam) - config.json:
+# enforce.code_smells = "warn" | "deny" | "off".
+
+# --- Transporte / TLS ---
+(?i)verify\s*=\s*False ::: Requisicao HTTPS sem validar certificado (requests verify=False).
+(?i)rejectUnauthorized\s*:\s*false ::: TLS sem validacao de certificado.
+(?i)NODE_TLS_REJECT_UNAUTHORIZED\s*[=:]\s*['"]?0 ::: Desativa validacao TLS globalmente no processo.
+(?i)ssl_verify\s*=\s*False|InsecureRequestWarning ::: Validacao de certificado desativada.
+
+# --- Injecao ---
+(?i)(execute|executemany|query|raw)\s*\(\s*f['"] ::: SQL montado com f-string. Use query parametrizada (:param / %s / ?).
+(?i)(SELECT|INSERT|UPDATE|DELETE)\b[^;]{0,120}['"]\s*[+%]\s*\w ::: SQL concatenado com variavel. Use bind parameters.
+(?i)subprocess\.\w+\([^)]*shell\s*=\s*True ::: shell=True com entrada dinamica permite command injection. Passe lista de args.
+(?i)(child_process\.)?exec(Sync)?\s*\(\s*[`'"][^`'"]*\$\{ ::: Comando de shell interpolado. Use execFile/spawn com array de args.
+(?i)\beval\s*\(|new\s+Function\s*\( ::: Execucao dinamica de codigo.
+(?i)pickle\.loads?\s*\(|yaml\.load\s*\((?![^)]*Loader\s*=\s*yaml\.SafeLoader) ::: Desserializacao insegura. Use yaml.safe_load / json.
+
+# --- XSS / DOM ---
+(?i)dangerouslySetInnerHTML ::: Injecao de HTML cru. Sanitize (DOMPurify) ou renderize como texto.
+(?i)\.(innerHTML|outerHTML)\s*= ::: Escrita de HTML cru no DOM. Use textContent.
+(?i)document\.write\s*\( ::: document.write permite injecao.
+(?i)v-html\s*= ::: Renderizacao de HTML cru no Vue.
+
+# --- Autenticacao / cripto ---
+(?i)(md5|sha1)\s*\([^)]*(pass|senha|pwd|secret) ::: Hash fraco para senha. Use bcrypt/argon2/scrypt.
+(?i)algorithms?\s*=\s*\[?\s*['"]none['"] ::: JWT aceitando alg=none.
+(?i)jwt\.decode\([^)]*verify\s*=\s*False|jwt\.decode\((?![^)]*(verify|algorithms)) ::: JWT decodificado sem verificar assinatura.
+(?i)Math\.random\(\)[^;]{0,40}(token|secret|senha|password|id|uuid|nonce) ::: Math.random nao e criptograficamente seguro. Use crypto.randomUUID / secrets.
+
+# --- Exposicao ---
+(?i)(cors|origin)\s*[:(]\s*['"]?\*['"]? ::: CORS liberado para qualquer origem.
+(?i)allow_origins\s*=\s*\[\s*['"]\* ::: CORS liberado para qualquer origem (FastAPI).
+(?i)ALLOWED_HOSTS\s*=\s*\[\s*['"]\* ::: Host header nao restrito.
+(?i)\b(DEBUG|debug)\s*[:=]\s*True\b ::: DEBUG ligado vaza stack trace e configuracao em erro.
+(?i)console\.log\([^)]*(token|senha|password|secret|cpf|cnpj|card|cvv) ::: Log de dado sensivel.
+(?i)print\([^)]*(token|senha|password|secret|cpf|cnpj) ::: Log de dado sensivel.
+
+# --- Testes frageis ---
+(?i)cy\.wait\(\s*\d+ ::: Espera fixa deixa o teste flaky. Use cy.intercept + cy.wait('@alias') ou assercao com retry.
+(?i)(page|frame)\.waitForTimeout\( ::: Espera fixa deixa o teste flaky. Use expect(locator).toBeVisible() (auto-wait).
+(?i)\b(setTimeout|sleep|time\.sleep)\([^)]*\)\s*(//|#)?\s*(wait|espera) ::: Sleep arbitrario em teste.
+(?i)expect\((true|1)\)\.(toBe|toEqual)\((true|1)\) ::: Assercao vazia: o teste nao valida nada.
+(?i)\b(xit|xdescribe|it\.skip|describe\.skip|test\.skip|@pytest\.mark\.skip)\b ::: Teste desativado. Conserte ou remova - teste pulado silenciosamente vira divida.
+(?i)cy\.get\(['"]\.[\w-]+['"]\)|getByClassName ::: Seletor por classe CSS quebra a cada refactor de estilo. Use data-testid / role.

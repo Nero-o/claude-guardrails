@@ -1,0 +1,83 @@
+{
+  "$schema": "./schema.md",
+  "version": 1,
+  "enforce": {
+    "bash_deny": true,
+    "bash_ask": true,
+    "write_secrets": "deny",
+    "write_sensitive_paths": "deny",
+    "code_smells": "warn",
+    "test_only_markers": "deny",
+    "post_edit_lint": true,
+    "stop_requires_tests": "warn",
+    "stop_scans_diff": true,
+    "session_start_context": true
+  },
+  "protected_branches": [
+    "main",
+    "master",
+    "prod",
+    "production",
+    "release"
+  ],
+  "test_patterns": [
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/tests/**",
+    "**/test/**",
+    "**/__tests__/**",
+    "**/e2e/**",
+    "**/cypress/**",
+    "**/test_*.py",
+    "**/*_test.py",
+    "**/*_test.go"
+  ],
+  "source_extensions": [
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs",
+    ".vue",
+    ".svelte",
+    ".py",
+    ".go",
+    ".rs",
+    ".java",
+    ".kt",
+    ".swift",
+    ".rb",
+    ".php",
+    ".cs",
+    ".sql"
+  ],
+  "ignore_paths": [
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    ".nuxt",
+    "coverage",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "vendor",
+    ".git",
+    ".turbo",
+    "target",
+    "graphify-out",
+    ".claude/guardrails/.state",
+    "guardrails",
+    ".claude/guardrails"
+  ],
+  "post_edit": {
+    "timeout_seconds": 45,
+    "block_on_lint_error": true,
+    "max_file_bytes": 400000
+  },
+  "limits": {
+    "max_diff_files_scanned": 400,
+    "max_file_scan_bytes": 2000000
+  }
+}

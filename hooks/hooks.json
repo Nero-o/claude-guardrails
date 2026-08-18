@@ -1,0 +1,71 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/guardrails-hook.sh",
+            "args": ["session-start"],
+            "timeout": 20,
+            "statusMessage": "guardrails: detectando stack"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/guardrails-hook.sh",
+            "args": ["pre-bash"],
+            "timeout": 15,
+            "statusMessage": "guardrails: verificando comando"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/guardrails-hook.sh",
+            "args": ["pre-write"],
+            "timeout": 15,
+            "statusMessage": "guardrails: verificando conteudo"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/guardrails-hook.sh",
+            "args": ["post-edit"],
+            "timeout": 90,
+            "statusMessage": "guardrails: format + lint"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/guardrails-hook.sh",
+            "args": ["stop"],
+            "timeout": 60,
+            "statusMessage": "guardrails: revisando alteracoes"
+          }
+        ]
+      }
+    ]
+  }
+}

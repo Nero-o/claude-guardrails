@@ -1,0 +1,17 @@
+# <severidade> ::: <regex do caminho> ::: <motivo>
+# severidade: deny | ask
+
+deny ::: (^|/)\.env(\.(local|development|dev|staging|stage|production|prod))?$ ::: Arquivo de ambiente com segredos reais. Edite .env.example e peca ao usuario para preencher o .env local.
+deny ::: \.(pem|key|p12|pfx|jks|keystore|crt|cer)$ ::: Arquivo de chave/certificado.
+deny ::: (^|/)(id_rsa|id_dsa|id_ecdsa|id_ed25519)(\.pub)?$ ::: Chave SSH.
+deny ::: (^|/)\.ssh/ ::: Diretorio de chaves SSH.
+deny ::: (^|/)(credentials|service[-_]?account.*|gcloud-key.*)\.json$ ::: Arquivo de credencial de cloud.
+deny ::: (^|/)\.git/ ::: Internals do git. Use comandos git.
+deny ::: (^|/)\.(npmrc|pypirc|netrc|dockercfg)$ ::: Arquivo de credencial de registry.
+deny ::: (^|/)node_modules/|(^|/)\.venv/|(^|/)site-packages/ ::: Dependencia instalada. Altere o codigo-fonte ou faca patch pelo gerenciador.
+
+ask ::: (^|/)(package-lock\.json|pnpm-lock\.yaml|yarn\.lock|poetry\.lock|Cargo\.lock|Gemfile\.lock|uv\.lock)$ ::: Lockfile deve ser gerado pelo gerenciador, nao editado a mao.
+ask ::: (^|/)\.github/workflows/ ::: Pipeline de CI/CD roda com segredos do repositorio.
+ask ::: (^|/)(Dockerfile|docker-compose\.ya?ml|fly\.toml|railway\.(json|toml)|vercel\.json|Procfile)$ ::: Configuracao de deploy afeta ambiente executado.
+ask ::: (^|/)(migrations?|alembic/versions)/.*\.(py|sql|ts|js)$ ::: Migration ja aplicada nao deve ser editada - crie uma nova.
+ask ::: (^|/)\.gitignore$ ::: Alterar .gitignore pode passar a versionar arquivo sensivel.

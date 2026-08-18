@@ -1,0 +1,32 @@
+{
+  "name": "guardrails",
+  "displayName": "Guardrails",
+  "version": "1.0.0",
+  "description": "Trava comando destrutivo, credencial hardcoded e codigo entregue sem teste. Detecta o stack sozinho (Jest, Vitest, Playwright, Cypress, pytest) e roda o gate de qualidade.",
+  "author": {
+    "name": "Omar Mahmoud",
+    "url": "https://github.com/Nero-o"
+  },
+  "homepage": "https://github.com/Nero-o/claude-guardrails",
+  "repository": "https://github.com/Nero-o/claude-guardrails",
+  "license": "MIT",
+  "keywords": [
+    "seguranca",
+    "testes",
+    "qualidade",
+    "hooks",
+    "playwright",
+    "cypress",
+    "jest"
+  ],
+  "hooks": "./hooks/hooks.json",
+  "userConfig": {
+    "strictness": {
+      "type": "string",
+      "title": "Nivel de rigor",
+      "description": "permissivo = so bloqueia risco grave | padrao = recomendado | estrito = exige teste e bloqueia padrao inseguro",
+      "default": "padrao",
+      "required": false
+    }
+  }
+}
